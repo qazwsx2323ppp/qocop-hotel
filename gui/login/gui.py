@@ -29,15 +29,16 @@ class Login(Toplevel):
             return
         else:
             messagebox.showerror(
-                title="Invalid Credentials",
-                message="The username and self.password don't match",
+                title="凭据无效",
+                message="用户名和密码不匹配",
             )
 
     def __init__(self, *args, **kwargs):
 
         Toplevel.__init__(self, *args, **kwargs)
 
-        self.title("Login - HotinGo")
+        self.title("登录 - qocop")
+        self.protocol("WM_DELETE_WINDOW", self._close_app)
 
         self.geometry("1012x506")
         self.configure(bg="#5E95FF")
@@ -71,7 +72,7 @@ class Login(Toplevel):
             573.0,
             306.0,
             anchor="nw",
-            text="Password",
+            text="密码",
             fill="#5E95FF",
             font=("Montserrat Bold", 14 * -1),
         )
@@ -80,7 +81,7 @@ class Login(Toplevel):
             573.0,
             204.0,
             anchor="nw",
-            text="Username",
+            text="用户名",
             fill="#5E95FF",
             font=("Montserrat Bold", 14 * -1),
         )
@@ -89,15 +90,15 @@ class Login(Toplevel):
             553.0,
             66.0,
             anchor="nw",
-            text="Enter your login details",
+            text="请输入登录信息",
             fill="#5E95FF",
             font=("Montserrat Bold", 26 * -1),
         )
 
-        button_image_1 = PhotoImage(file=relative_to_assets("button_1.png"))
+        self.button_image_1 = PhotoImage(file=relative_to_assets("button_1.png"))
         button_1 = Button(
             self.canvas,
-            image=button_image_1,
+            image=self.button_image_1,
             borderwidth=0,
             highlightthickness=0,
             command=self.loginFunc,
@@ -109,7 +110,7 @@ class Login(Toplevel):
             85.0,
             77.0,
             anchor="nw",
-            text="HotinGo",
+            text="qocop",
             fill="#FFFFFF",
             font=("Montserrat Bold", 50 * -1),
         )
@@ -118,7 +119,7 @@ class Login(Toplevel):
             553.0,
             109.0,
             anchor="nw",
-            text="Enter the credentials that the admin gave",
+            text="请输入管理员在注册时提供的凭据",
             fill="#CCCCCC",
             font=("Montserrat Bold", 16 * -1),
         )
@@ -127,7 +128,7 @@ class Login(Toplevel):
             553.0,
             130.0,
             anchor="nw",
-            text="you while signing up for the program",
+            text="用于登录本系统",
             fill="#CCCCCC",
             font=("Montserrat Bold", 16 * -1),
         )
@@ -157,23 +158,13 @@ class Login(Toplevel):
         )
         self.password.place(x=573.0, y=330.0, width=326.0, height=22.0)
 
-        self.canvas.create_text(
-            90.0,
-            431.0,
-            anchor="nw",
-            text="© Mohit & Anirudh, 2021",
-            fill="#FFFFFF",
-            font=("Montserrat Bold", 18 * -1),
-        )
-
-        image_image_1 = PhotoImage(file=relative_to_assets("image_1.png"))
-        image_1 = self.canvas.create_image(458.0, 326.0, image=image_image_1)
+        # Removed developer credit text and center illustration image.
 
         self.canvas.create_text(
             90.0,
             150.0,
             anchor="nw",
-            text="Hotingo is a Hotel",
+            text="qocop 是一款酒店",
             fill="#FFFFFF",
             font=("Montserrat Regular", 18 * -1),
         )
@@ -182,7 +173,7 @@ class Login(Toplevel):
             90.0,
             179.0,
             anchor="nw",
-            text="Management system that",
+            text="管理系统，能够",
             fill="#FFFFFF",
             font=("Montserrat Regular", 18 * -1),
         )
@@ -191,7 +182,7 @@ class Login(Toplevel):
             90.0,
             208.0,
             anchor="nw",
-            text="allows you to manage guests,",
+            text="帮助你管理住客，",
             fill="#FFFFFF",
             font=("Montserrat Regular", 18 * -1),
         )
@@ -200,7 +191,7 @@ class Login(Toplevel):
             90.0,
             237.0,
             anchor="nw",
-            text="room, and reservations using",
+            text="客房与预订，",
             fill="#FFFFFF",
             font=("Montserrat Regular", 18 * -1),
         )
@@ -209,7 +200,7 @@ class Login(Toplevel):
             90.0,
             266.0,
             anchor="nw",
-            text="a well-engineered solution.",
+            text="采用精心设计的解决方案。",
             fill="#FFFFFF",
             font=("Montserrat Regular", 18 * -1),
         )
@@ -218,7 +209,7 @@ class Login(Toplevel):
             90.0,
             295.0,
             anchor="nw",
-            text="Login to have a look for",
+            text="登录以查看",
             fill="#FFFFFF",
             font=("Montserrat Regular", 18 * -1),
         )
@@ -227,7 +218,7 @@ class Login(Toplevel):
             90.0,
             324.0,
             anchor="nw",
-            text="yourself...",
+            text="更多内容…",
             fill="#FFFFFF",
             font=("Montserrat Regular", 18 * -1),
         )
@@ -238,4 +229,11 @@ class Login(Toplevel):
 
         # Essentials
         self.resizable(False, False)
-        self.mainloop()
+
+    def _close_app(self):
+        # Ensure the whole app quits when closing the login window.
+        try:
+            if self.master:
+                self.master.destroy()
+        finally:
+            self.destroy()

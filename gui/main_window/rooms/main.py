@@ -6,7 +6,7 @@ import controller as db_controller
 
 from .add_room.gui import AddRooms
 from .view_rooms.main import ViewRooms
-from .update_rooms.main import UpdateRooms
+from .update_rooms.main import ConfirmRoomId, UpdateRooms
 
 OUTPUT_PATH = Path(__file__).parent
 ASSETS_PATH = OUTPUT_PATH / Path("./assets")
@@ -33,6 +33,7 @@ class Rooms(Frame):
         self.windows = {
             "add": AddRooms(self),
             "view": ViewRooms(self),
+            "confirm": ConfirmRoomId(self),
             "edit": UpdateRooms(self),
         }
 

@@ -22,6 +22,16 @@ def relative_to_assets(path: str) -> Path:
     return ASSETS_PATH / Path(path)
 
 
+def normalize_prefixed_id(value, prefix):
+    text = str(value).strip() if value is not None else ""
+    if not text:
+        return None
+    if text.startswith(prefix):
+        suffix = text[len(prefix) :]
+        return text if suffix.isdigit() else None
+    return f"{prefix}{text}" if text.isdigit() else None
+
+
 def view_reservations():
     ViewReservations()
 
@@ -58,7 +68,7 @@ class ViewReservations(Frame):
             116.0,
             33.0,
             anchor="nw",
-            text="View Reservations",
+            text="查看预订",
             fill="#5E95FF",
             font=("Montserrat Bold", 26 * -1),
         )
@@ -67,7 +77,7 @@ class ViewReservations(Frame):
             40.0,
             367.0,
             anchor="nw",
-            text="Avail. Actions:",
+            text="可用操作：",
             fill="#5E95FF",
             font=("Montserrat Bold", 26 * -1),
         )
@@ -76,7 +86,7 @@ class ViewReservations(Frame):
             116.0,
             65.0,
             anchor="nw",
-            text="And Perform Operations",
+            text="并执行操作",
             fill="#808080",
             font=("Montserrat SemiBold", 16 * -1),
         )
@@ -163,13 +173,12 @@ class ViewReservations(Frame):
         # Add treeview here
 
         self.columns = {
-            "res": "Res. ID",
-            "gue": "Guest ID",
-            "roo": "Room ID",
-            "c_i": "Check In Time",
-            "c_o": "Check Out Time",
-            "mea": "Meal",
-            "sta": "Status",
+            "res": "预订ID",
+            "gue": "住客ID",
+            "roo": "房间ID",
+            "c_i": "入住时间",
+            "c_o": "退房时间",
+            "sta": "状态",
         }
 
         self.treeview = Treeview(
@@ -184,21 +193,19 @@ class ViewReservations(Frame):
         )
 
         # Show the headings
-        self.treeview.heading(list(self.columns.keys())[0], text="Res")
-        self.treeview.heading(list(self.columns.keys())[1], text="Guest ID")
-        self.treeview.heading(list(self.columns.keys())[2], text="Room ID")
-        self.treeview.heading(list(self.columns.keys())[3], text="Check In")
-        self.treeview.heading(list(self.columns.keys())[4], text="Check Out")
-        self.treeview.heading(list(self.columns.keys())[5], text="Meal")
-        self.treeview.heading(list(self.columns.keys())[6], text="Status")
+        self.treeview.heading(list(self.columns.keys())[0], text="预订ID")
+        self.treeview.heading(list(self.columns.keys())[1], text="住客ID")
+        self.treeview.heading(list(self.columns.keys())[2], text="房间ID")
+        self.treeview.heading(list(self.columns.keys())[3], text="入住")
+        self.treeview.heading(list(self.columns.keys())[4], text="退房")
+        self.treeview.heading(list(self.columns.keys())[5], text="状态")
         # Set the column widths
-        self.treeview.column(list(self.columns.keys())[0], width=50)
-        self.treeview.column(list(self.columns.keys())[1], width=50)
-        self.treeview.column(list(self.columns.keys())[2], width=50)
-        self.treeview.column(list(self.columns.keys())[3], width=150)
-        self.treeview.column(list(self.columns.keys())[4], width=150)
-        self.treeview.column(list(self.columns.keys())[5], width=60)
-        self.treeview.column(list(self.columns.keys())[6], width=100)
+        self.treeview.column(list(self.columns.keys())[0], width=70, stretch=False)
+        self.treeview.column(list(self.columns.keys())[1], width=80, stretch=False)
+        self.treeview.column(list(self.columns.keys())[2], width=80, stretch=False)
+        self.treeview.column(list(self.columns.keys())[3], width=160, stretch=False)
+        self.treeview.column(list(self.columns.keys())[4], width=160, stretch=False)
+        self.treeview.column(list(self.columns.keys())[5], width=90, stretch=False)
         # # Insert data from variable
         # if self.reservation_data:
         #     for reservation in self.reservation_data:
@@ -230,7 +237,7 @@ class ViewReservations(Frame):
         if not self.parent.selected_rid:
             # Show warning
             messagebox.showwarning(
-                "Select a Reservation First", "Please select a reservation to checkout"
+                "请先选择预订", "请选择需要退房的预订"
             )
         # Get the selected reservation
         db_controller.checkout(self.parent.selected_rid)
@@ -243,7 +250,15 @@ class ViewReservations(Frame):
             # Check if query exists in any value from data
             if query.lower() in str(row).lower():
                 # Insert the data into the treeview
-                self.treeview.insert("", "end", values=row)
+                display_row = (
+                    row[0],
+                    row[1],
+                    row[2],
+                    row[3],
+                    row[4],
+                    row[5] if len(row) > 5 else "",
+                )
+                self.treeview.insert("", "end", values=display_row)
         self.on_treeview_select()
 
     def on_treeview_select(self, event=None):
@@ -255,7 +270,8 @@ class ViewReservations(Frame):
         # Get the selected item
         item = self.treeview.selection()[0]
         # Get the reservation id
-        self.parent.selected_rid = self.treeview.item(item, "values")[0]
+        raw_id = self.treeview.item(item, "values")[0]
+        self.parent.selected_rid = normalize_prefixed_id(raw_id, "res_") or raw_id
         # Enable the buttons
         self.delete_btn.config(state="normal")
         self.edit_btn.config(state="normal")
@@ -269,7 +285,15 @@ class ViewReservations(Frame):
             self.reservation_data = self.parent.reservation_data
 
         for row in self.reservation_data:
-            self.treeview.insert("", "end", values=row)
+            display_row = (
+                row[0],
+                row[1],
+                row[2],
+                row[3],
+                row[4],
+                row[5] if len(row) > 5 else "",
+            )
+            self.treeview.insert("", "end", values=display_row)
 
         # Refresh the dashboard
         try: self.parent.parent.handle_dashboard_refresh()

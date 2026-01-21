@@ -21,8 +21,132 @@ def relative_to_assets(path: str) -> Path:
     return ASSETS_PATH / Path(path)
 
 
+def normalize_prefixed_id(value, prefix):
+    text = str(value).strip() if value is not None else ""
+    if not text:
+        return None
+    if text.startswith(prefix):
+        suffix = text[len(prefix) :]
+        return text if suffix.isdigit() else None
+    return f"{prefix}{text}" if text.isdigit() else None
+
+
 def update_guests():
     UpdateGuests()
+
+
+class ConfirmGuestId(Frame):
+    def __init__(self, parent, controller=None, *args, **kwargs):
+        Frame.__init__(self, parent, *args, **kwargs)
+        self.parent = parent
+        self.data = {"id": StringVar()}
+
+        self.configure(bg="#FFFFFF")
+
+        self.canvas = Canvas(
+            self,
+            bg="#FFFFFF",
+            height=432,
+            width=797,
+            bd=0,
+            highlightthickness=0,
+            relief="ridge",
+        )
+
+        self.canvas.place(x=0, y=0)
+        self.canvas.create_rectangle(
+            40.0, 14.0, 742.0, 16.0, fill="#EFEFEF", outline=""
+        )
+
+        self.canvas.create_text(
+            116.0,
+            33.0,
+            anchor="nw",
+            text="ID确认",
+            fill="#5E95FF",
+            font=("Montserrat Bold", 26 * -1),
+        )
+
+        self.canvas.create_text(
+            116.0,
+            65.0,
+            anchor="nw",
+            text="请输入住客ID",
+            fill="#808080",
+            font=("Montserrat SemiBold", 16 * -1),
+        )
+
+        self.button_image_1 = PhotoImage(file=relative_to_assets("button_1.png"))
+        button_1 = Button(
+            self,
+            image=self.button_image_1,
+            borderwidth=0,
+            highlightthickness=0,
+            command=lambda: self.parent.navigate("view"),
+            relief="flat",
+        )
+        button_1.place(x=40.0, y=33.0, width=53.0, height=53.0)
+
+        self.entry_image_1 = PhotoImage(file=relative_to_assets("entry_1.png"))
+        entry_bg_1 = self.canvas.create_image(391.0, 219.0, image=self.entry_image_1)
+        entry_1 = Entry(
+            self,
+            font=("Montserrat Bold", 18 * -1),
+            textvariable=self.data["id"],
+            foreground="#777777",
+            bd=0,
+            bg="#EFEFEF",
+            highlightthickness=0,
+        )
+        entry_1.place(x=248.0, y=207.0, width=282.0, height=22.0)
+        self._set_placeholder(entry_1, "例如 guest_1")
+
+        self.button_image_10 = PhotoImage(file=relative_to_assets("button_10.png"))
+        button_10 = Button(
+            self,
+            image=self.button_image_10,
+            borderwidth=0,
+            highlightthickness=0,
+            command=self.handle_confirm,
+            relief="flat",
+        )
+        button_10.place(x=326.0, y=284.0, width=144.0, height=48.0)
+
+    def _set_placeholder(self, entry, value):
+        entry.delete(0, "end")
+        entry.insert(0, value)
+        entry.config(foreground="#AAAAAA")
+        entry.bind("<FocusIn>", lambda event: self._clear_placeholder(entry, value))
+        entry.bind("<FocusOut>", lambda event: self._restore_placeholder(entry, value))
+
+    def _clear_placeholder(self, entry, value):
+        if entry.get() == value:
+            entry.delete(0, "end")
+            entry.config(foreground="#777777")
+
+    def _restore_placeholder(self, entry, value):
+        if entry.get().strip() == "":
+            entry.insert(0, value)
+            entry.config(foreground="#AAAAAA")
+
+    def reset(self):
+        self.data["id"].set("")
+
+    def handle_confirm(self):
+        raw_id = self.data["id"].get().strip()
+        if raw_id == "例如 guest_1":
+            raw_id = ""
+        guest_id = normalize_prefixed_id(raw_id, "guest_")
+        self.parent.guest_data = db_controller.get_guests()
+        if not guest_id:
+            messagebox.showerror("错误", "请输入正确ID")
+            return
+        if not any(str(row[0]) == guest_id for row in self.parent.guest_data):
+            messagebox.showerror("错误", "请输入正确ID")
+            return
+        self.parent.selected_rid = guest_id
+        self.parent.windows["edit"].initialize()
+        self.parent.navigate("edit")
 
 
 class UpdateGuests(Frame):
@@ -61,7 +185,7 @@ class UpdateGuests(Frame):
             116.0,
             33.0,
             anchor="nw",
-            text="Update Guest",
+            text="更新住客",
             fill="#5E95FF",
             font=("Montserrat Bold", 26 * -1),
         )
@@ -70,7 +194,7 @@ class UpdateGuests(Frame):
             116.0,
             65.0,
             anchor="nw",
-            text="Change Details",
+            text="修改信息",
             fill="#808080",
             font=("Montserrat SemiBold", 16 * -1),
         )
@@ -93,7 +217,7 @@ class UpdateGuests(Frame):
             71.56398010253906,
             145.0,
             anchor="nw",
-            text="Guest ID",
+            text="住客ID",
             fill="#5E95FF",
             font=("Montserrat Bold", 14 * -1),
         )
@@ -114,7 +238,7 @@ class UpdateGuests(Frame):
             71.56398010253906,
             251.0,
             anchor="nw",
-            text="Guest Address",
+            text="住客地址",
             fill="#5E95FF",
             font=("Montserrat Bold", 14 * -1),
         )
@@ -143,7 +267,7 @@ class UpdateGuests(Frame):
             455.0473937988281,
             145.0,
             anchor="nw",
-            text="Guest Name",
+            text="住客姓名",
             fill="#5E95FF",
             font=("Montserrat Bold", 14 * -1),
         )
@@ -168,7 +292,7 @@ class UpdateGuests(Frame):
             455.0473937988281,
             253.0,
             anchor="nw",
-            text="Phone Number",
+            text="电话号码",
             fill="#5E95FF",
             font=("Montserrat Bold", 14 * -1),
         )
@@ -228,8 +352,8 @@ class UpdateGuests(Frame):
             name=data[0], address=data[1], phone=data[2], id=self.selected_r_id
         )
         if result:
-            messagebox.showinfo("Success", "Guest Updated")
+            messagebox.showinfo("成功", "住客更新成功")
             self.parent.navigate("view")
             self.parent.windows['view'].handle_refresh()
         else:
-            messagebox.showerror("Error", "Failed to update guest. Please Verify that all IDs are correct.")
+            messagebox.showerror("错误", "更新住客失败，请确认所有ID正确。")

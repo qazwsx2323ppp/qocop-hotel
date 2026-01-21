@@ -50,7 +50,7 @@ class Dashboard(Frame):
             56.0,
             45.0,
             anchor="nw",
-            text="Vacant",
+            text="空房",
             fill="#5E95FF",
             font=("Montserrat Bold", 14 * -1),
         )
@@ -81,7 +81,7 @@ class Dashboard(Frame):
             240.0,
             45.0,
             anchor="nw",
-            text="Booked",
+            text="已预订",
             fill="#5E95FF",
             font=("Montserrat Bold", 14 * -1),
         )
@@ -144,7 +144,7 @@ class Dashboard(Frame):
             235.0,
             200.0,
             anchor="nw",
-            text="Booked",
+            text="已预订",
             fill="#5E95FF",
             font=("Montserrat Bold", 13 * -1),
         )
@@ -153,7 +153,7 @@ class Dashboard(Frame):
             235.0,
             222.0,
             anchor="nw",
-            text="Vacant",
+            text="空房",
             fill="#5E95FF",
             font=("Montserrat Bold", 13 * -1),
         )
@@ -173,7 +173,7 @@ class Dashboard(Frame):
             424.0,
             45.0,
             anchor="nw",
-            text="Hotel Value",
+            text="酒店总价值",
             fill="#5E95FF",
             font=("Montserrat Bold", 14 * -1),
         )
@@ -202,7 +202,7 @@ class Dashboard(Frame):
             608.0,
             45.0,
             anchor="nw",
-            text="Meals Taken",
+            text="入住人数",
             fill="#5E95FF",
             font=("Montserrat Bold", 14 * -1),
         )
@@ -211,7 +211,7 @@ class Dashboard(Frame):
             712.0,
             63.0,
             anchor="ne",
-            text=db_controller.meals(),
+            text=db_controller.active_guests(),
             fill="#5E95FF",
             font=("Montserrat Bold", 48 * -1),
         )
@@ -231,7 +231,7 @@ class Dashboard(Frame):
             56.0,
             191.0,
             anchor="nw",
-            text="Room",
+            text="房间",
             fill="#5E95FF",
             font=("Montserrat Bold", 26 * -1),
         )
@@ -240,7 +240,7 @@ class Dashboard(Frame):
             56.0,
             223.0,
             anchor="nw",
-            text="Status",
+            text="状态",
             fill="#5E95FF",
             font=("Montserrat Bold", 18 * -1),
         )
@@ -249,7 +249,7 @@ class Dashboard(Frame):
             359.0,
             223.0,
             anchor="nw",
-            text="By Type",
+            text="按类型",
             fill="#5E95FF",
             font=("Montserrat Bold", 18 * -1),
         )
@@ -258,7 +258,7 @@ class Dashboard(Frame):
             359.0,
             191.0,
             anchor="nw",
-            text="Bookings",
+            text="预订",
             fill="#5E95FF",
             font=("Montserrat Bold", 26 * -1),
         )
@@ -300,7 +300,7 @@ class Dashboard(Frame):
             235.0,
             200.0,
             anchor="nw",
-            text="Vacant",
+            text="空房",
             fill="#5E95FF",
             font=("Montserrat Bold", 13 * -1),
         )
@@ -309,7 +309,7 @@ class Dashboard(Frame):
             235.0,
             222.0,
             anchor="nw",
-            text="Booked",
+            text="已预订",
             fill="#5E95FF",
             font=("Montserrat Bold", 13 * -1),
         )
@@ -357,7 +357,7 @@ class Dashboard(Frame):
             539.693603515625,
             200.0,
             anchor="nw",
-            text="Delux",
+            text="豪华",
             fill="#5E95FF",
             font=("Montserrat Bold", 13 * -1),
         )
@@ -366,7 +366,7 @@ class Dashboard(Frame):
             539.693603515625,
             222.0,
             anchor="nw",
-            text="Normal",
+            text="普通",
             fill="#5E95FF",
             font=("Montserrat Bold", 13 * -1),
         )
@@ -378,12 +378,24 @@ class Dashboard(Frame):
         fig.patch.set_facecolor("#eeefee")
 
         plot1 = fig.add_subplot(111)
-        plot1.pie(
-            [db_controller.vacant(), db_controller.booked()],
-            [0.1, 0.1],
-            startangle=-30,
-            colors=("#6495ED", "#8A8A8A"),
-        )
+        room_values = [db_controller.vacant(), db_controller.booked()]
+        if sum(room_values) > 0:
+            plot1.pie(
+                room_values,
+                [0.1, 0.1],
+                startangle=-30,
+                colors=("#6495ED", "#8A8A8A"),
+            )
+        else:
+            plot1.text(
+                0.5,
+                0.5,
+                "暂无数据",
+                ha="center",
+                va="center",
+                transform=plot1.transAxes,
+            )
+            plot1.axis("off")
 
         canvas1 = FigureCanvasTkAgg(fig, self)
         canvas1.draw()
@@ -393,9 +405,25 @@ class Dashboard(Frame):
         fig1.patch.set_facecolor("#eeefee")
 
         plot2 = fig1.add_subplot(111)
-        plot2.pie([5, 3], [0.1, 0.1], startangle=-30, colors=("#6495ED", "#8A8A8A"))
+        booking_values = db_controller.bookings()
+        if sum(booking_values) > 0:
+            plot2.pie(
+                booking_values,
+                [0.1, 0.1],
+                startangle=-30,
+                colors=("#6495ED", "#8A8A8A"),
+            )
+        else:
+            plot2.text(
+                0.5,
+                0.5,
+                "暂无数据",
+                ha="center",
+                va="center",
+                transform=plot2.transAxes,
+            )
+            plot2.axis("off")
 
         canvas2 = FigureCanvasTkAgg(fig1, self)
         canvas2.draw()
         canvas2.get_tk_widget().place(x=359, y=253)
-

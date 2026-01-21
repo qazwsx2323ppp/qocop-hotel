@@ -55,7 +55,7 @@ class AddGuests(Frame):
             52.0,
             128.0,
             anchor="nw",
-            text="Full Name",
+            text="姓名",
             fill="#5E95FF",
             font=("Montserrat Bold", 14 * -1),
         )
@@ -77,9 +77,9 @@ class AddGuests(Frame):
             52.0,
             155.0,
             anchor="nw",
-            text="Jane Doe",
+            text="张三",
             fill="#000000",
-            font=("Montserrat SemiBold", 17 * -1),
+            font=("Microsoft YaHei", 17 * -1),
         )
 
         self.image_image_2 = PhotoImage(file=relative_to_assets("image_2.png"))
@@ -89,7 +89,7 @@ class AddGuests(Frame):
             52.0,
             234.0,
             anchor="nw",
-            text="Phone no.",
+            text="电话号码",
             fill="#5E95FF",
             font=("Montserrat Bold", 14 * -1),
         )
@@ -113,7 +113,7 @@ class AddGuests(Frame):
             anchor="nw",
             text="7976674193",
             fill="#000000",
-            font=("Montserrat SemiBold", 17 * -1),
+            font=("Microsoft YaHei", 17 * -1),
         )
 
         self.image_image_3 = PhotoImage(file=relative_to_assets("image_3.png"))
@@ -123,7 +123,7 @@ class AddGuests(Frame):
             293.0,
             128.0,
             anchor="nw",
-            text="Address",
+            text="地址",
             fill="#5E95FF",
             font=("Montserrat Bold", 14 * -1),
         )
@@ -145,9 +145,9 @@ class AddGuests(Frame):
             293.0,
             155.0,
             anchor="nw",
-            text="Pochinki, Jaipur",
+            text="北京市朝阳区",
             fill="#000000",
-            font=("Montserrat SemiBold", 17 * -1),
+            font=("Microsoft YaHei", 17 * -1),
         )
 
         self.image_image_4 = PhotoImage(file=relative_to_assets("image_4.png"))
@@ -157,7 +157,7 @@ class AddGuests(Frame):
             293.0,
             234.0,
             anchor="nw",
-            text="Email",
+            text="邮箱",
             fill="#5E95FF",
             font=("Montserrat Bold", 14 * -1),
         )
@@ -181,7 +181,7 @@ class AddGuests(Frame):
             anchor="nw",
             text="mail@host.in",
             fill="#000000",
-            font=("Montserrat SemiBold", 17 * -1),
+            font=("Microsoft YaHei", 17 * -1),
         )
 
         self.button_image_1 = PhotoImage(file=relative_to_assets("button_1.png"))
@@ -199,7 +199,7 @@ class AddGuests(Frame):
             143.0,
             59.0,
             anchor="nw",
-            text="Add a new Guest",
+            text="新增住客",
             fill="#5E95FF",
             font=("Montserrat Bold", 26 * -1),
         )
@@ -208,7 +208,7 @@ class AddGuests(Frame):
             549.0,
             59.0,
             anchor="nw",
-            text="Operations",
+            text="操作",
             fill="#5E95FF",
             font=("Montserrat Bold", 26 * -1),
         )
@@ -234,7 +234,7 @@ class AddGuests(Frame):
             image=self.button_image_3,
             borderwidth=0,
             highlightthickness=0,
-            command=lambda: self.parent.navigate("edit"),
+            command=lambda: self.parent.navigate("confirm"),
             relief="flat",
         )
         button_3.place(x=547.0, y=210.0, width=209.0, height=74.0)
@@ -244,22 +244,33 @@ class AddGuests(Frame):
         # check if any fields are empty
         for val in self.data.values():
             if val.get() == "":
-                messagebox.showinfo("Error", "Please fill in all the fields")
+                messagebox.showinfo("错误", "请填写所有字段")
                 return
 
+        email = self.data.get("email").get().strip()
+        if "@" not in email:
+            messagebox.showerror("错误", "请输入正确邮箱")
+            return
+
+        phone = self.data.get("phone").get().strip()
+        if not phone.isdigit():
+            messagebox.showerror("错误", "电话号码请输入数字")
+            return
+
         # Save the guest
-        result = db_controller.add_guest(
+        ok, err = db_controller.add_guest(
             *[self.data[label].get() for label in ("name", "address", "email", "phone")]
         )
 
-        if result:
-            messagebox.showinfo("Success", "guest added successfully")
+        if ok:
+            messagebox.showinfo("成功", "住客添加成功")
             self.parent.navigate("view")
             self.parent.windows.get("view").handle_refresh()
             # clear all fields
             for label in self.data.keys():
                 self.data[label].set(0)
         else:
-            messagebox.showerror(
-                "Error", "Unable to add guest. Please make sure the data is validated"
-            )
+            if err == "invalid_phone":
+                messagebox.showerror("错误", "电话号码请输入数字")
+            else:
+                messagebox.showerror("错误", "无法添加住客，请确认数据已校验")

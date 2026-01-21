@@ -20,6 +20,17 @@ def relative_to_assets(path: str) -> Path:
     return ASSETS_PATH / Path(path)
 
 
+def normalize_room_no(value):
+    text = str(value).strip().upper()
+    if not text:
+        return None
+    if len(text) < 2:
+        return None
+    if not text[0].isalpha() or not text[1:].isdigit():
+        return None
+    return text
+
+
 def add_rooms():
     AddRooms()
 
@@ -50,7 +61,7 @@ class AddRooms(Frame):
             52.0,
             128.0,
             anchor="nw",
-            text="Room Number",
+            text="房间号",
             fill="#5E95FF",
             font=("Montserrat Bold", 14 * -1),
         )
@@ -67,12 +78,13 @@ class AddRooms(Frame):
             foreground="#777777",
         )
         entry_1.place(x=52.0, y=153.0, width=179.0, height=22.0)
+        self._set_placeholder(entry_1, "例如 A307")
 
         self.canvas.create_text(
             52.0,
             155.0,
             anchor="nw",
-            text="1024",
+            text="A307",
             fill="#000000",
             font=("Montserrat SemiBold", 17 * -1),
         )
@@ -84,7 +96,7 @@ class AddRooms(Frame):
             52.0,
             234.0,
             anchor="nw",
-            text="Full Price",
+            text="全价",
             fill="#5E95FF",
             font=("Montserrat Bold", 14 * -1),
         )
@@ -118,7 +130,7 @@ class AddRooms(Frame):
             293.0,
             128.0,
             anchor="nw",
-            text="Type: (D)elux/(N)ormal",
+            text="类型：(D)豪华/(N)普通",
             fill="#5E95FF",
             font=("Montserrat Bold", 14 * -1),
         )
@@ -140,7 +152,7 @@ class AddRooms(Frame):
             293.0,
             155.0,
             anchor="nw",
-            text="1024",
+            text="D / N",
             fill="#000000",
             font=("Montserrat SemiBold", 17 * -1),
         )
@@ -160,7 +172,7 @@ class AddRooms(Frame):
             181.0,
             58.0,
             anchor="nw",
-            text="Add a Room",
+            text="新增房间",
             fill="#5E95FF",
             font=("Montserrat Bold", 26 * -1),
         )
@@ -169,7 +181,7 @@ class AddRooms(Frame):
             549.0,
             59.0,
             anchor="nw",
-            text="Operations",
+            text="操作",
             fill="#5E95FF",
             font=("Montserrat Bold", 26 * -1),
         )
@@ -195,7 +207,7 @@ class AddRooms(Frame):
             image=self.button_image_3,
             borderwidth=0,
             highlightthickness=0,
-            command=lambda: self.parent.navigate("edit"),
+            command=lambda: self.parent.navigate("confirm"),
             relief="flat",
         )
         button_3.place(x=547.0, y=210.0, width=209.0, height=74.0)
@@ -205,22 +217,47 @@ class AddRooms(Frame):
         # check if any fields are empty
         for val in self.data.values():
             if val.get() == "":
-                messagebox.showinfo("Error", "Please fill in all the fields")
+                messagebox.showinfo("错误", "请填写所有字段")
                 return
 
-        # Save the room
-        result = db_controller.add_room(
-            *[self.data[label].get() for label in ("r_no", "price", "type")]
+        room_no = normalize_room_no(self.data["r_no"].get())
+        if room_no is None:
+            messagebox.showerror("错误", "房间号格式应为 A307")
+            return
+        if not str(self.data["price"].get()).isdigit():
+            messagebox.showerror("错误", "价格请输入数字")
+            return
+
+        ok, err = db_controller.add_room(
+            room_no, *[self.data[label].get() for label in ("price", "type")]
         )
 
-        if result:
-            messagebox.showinfo("Success", "room added successfully")
+        if ok:
+            messagebox.showinfo("成功", "房间添加成功")
             self.parent.navigate("view")
             self.parent.windows.get("view").handle_refresh()
             # clear all fields
             for label in self.data.keys():
                 self.data[label].set(0)
         else:
-            messagebox.showerror(
-                "Error", "Unable to add room. Please make sure the data is validated"
-            )
+            if err == "duplicate_room_no":
+                messagebox.showerror("错误", "房间号已存在，请重新输入")
+            else:
+                messagebox.showerror("错误", "无法添加房间，请确认数据已校验")
+
+    def _set_placeholder(self, entry, value):
+        entry.delete(0, "end")
+        entry.insert(0, value)
+        entry.config(foreground="#AAAAAA")
+        entry.bind("<FocusIn>", lambda event: self._clear_placeholder(entry, value))
+        entry.bind("<FocusOut>", lambda event: self._restore_placeholder(entry, value))
+
+    def _clear_placeholder(self, entry, value):
+        if entry.get() == value:
+            entry.delete(0, "end")
+            entry.config(foreground="#777777")
+
+    def _restore_placeholder(self, entry, value):
+        if entry.get().strip() == "":
+            entry.insert(0, value)
+            entry.config(foreground="#AAAAAA")

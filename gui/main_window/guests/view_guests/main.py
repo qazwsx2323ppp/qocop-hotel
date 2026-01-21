@@ -22,6 +22,16 @@ def relative_to_assets(path: str) -> Path:
     return ASSETS_PATH / Path(path)
 
 
+def normalize_prefixed_id(value, prefix):
+    text = str(value).strip() if value is not None else ""
+    if not text:
+        return None
+    if text.startswith(prefix):
+        suffix = text[len(prefix) :]
+        return text if suffix.isdigit() else None
+    return f"{prefix}{text}" if text.isdigit() else None
+
+
 def view_guests():
     ViewGuests()
 
@@ -57,7 +67,7 @@ class ViewGuests(Frame):
             116.0,
             33.0,
             anchor="nw",
-            text="View Guests",
+            text="查看住客",
             fill="#5E95FF",
             font=("Montserrat Bold", 26 * -1),
         )
@@ -66,7 +76,7 @@ class ViewGuests(Frame):
             40.0,
             367.0,
             anchor="nw",
-            text="Avail. Actions:",
+            text="可用操作：",
             fill="#5E95FF",
             font=("Montserrat Bold", 26 * -1),
         )
@@ -75,7 +85,7 @@ class ViewGuests(Frame):
             116.0,
             65.0,
             anchor="nw",
-            text="And Perform Operations",
+            text="并执行操作",
             fill="#808080",
             font=("Montserrat SemiBold", 16 * -1),
         )
@@ -162,12 +172,12 @@ class ViewGuests(Frame):
         # Add treeview here
 
         self.columns = {
-            "Guest ID": ["Guest ID", 30],
-            "Name": ["Name", 80],
-            "Address": ["Address", 100],
-            "Email": ["Email", 250],
-            "Phone Number": ["Phone Number", 250],
-            "Created At": ["Created At", 200],
+            "Guest ID": ["住客ID", 70],
+            "Name": ["姓名", 110],
+            "Address": ["地址", 120],
+            "Email": ["邮箱", 180],
+            "Phone Number": ["电话", 100],
+            "Created At": ["创建时间", 120],
         }
 
         self.treeview = Treeview(
@@ -185,7 +195,7 @@ class ViewGuests(Frame):
         for idx, txt in self.columns.items():
             self.treeview.heading(idx, text=txt[0])
             # Set the column widths
-            self.treeview.column(idx, width=txt[1])
+            self.treeview.column(idx, width=txt[1], stretch=False)
 
         self.treeview.place(x=40.0, y=101.0, width=700.0, height=229.0)
 
@@ -202,7 +212,15 @@ class ViewGuests(Frame):
             # Check if query exists in any value from data
             if query.lower() in str(row).lower():
                 # Insert the data into the treeview
-                self.treeview.insert("", "end", values=row)
+                display_row = (
+                    row[0],
+                    row[1],
+                    row[2],
+                    row[3],
+                    row[4],
+                    row[5],
+                )
+                self.treeview.insert("", "end", values=display_row)
         self.on_treeview_select()
 
     def on_treeview_select(self, event=None):
@@ -214,7 +232,8 @@ class ViewGuests(Frame):
         # Get the selected item
         item = self.treeview.selection()[0]
         # Get the guest id
-        self.parent.selected_rid = self.treeview.item(item, "values")[0]
+        raw_id = self.treeview.item(item, "values")[0]
+        self.parent.selected_rid = normalize_prefixed_id(raw_id, "guest_") or raw_id
         # Enable the buttons
         self.delete_btn.config(state="normal")
         self.edit_btn.config(state="normal")
@@ -223,16 +242,24 @@ class ViewGuests(Frame):
         self.treeview.delete(*self.treeview.get_children())
         self.guest_data = db_controller.get_guests()
         for row in self.guest_data:
-            self.treeview.insert("", "end", values=row)
+            display_row = (
+                row[0],
+                row[1],
+                row[2],
+                row[3],
+                row[4],
+                row[5],
+            )
+            self.treeview.insert("", "end", values=display_row)
 
     def handle_navigate_back(self):
         self.parent.navigate("add")
 
     def handle_delete(self):
         if db_controller.delete_guest(self.parent.selected_rid):
-            messagebox.showinfo("Successfully Deleted the guest")
+            messagebox.showinfo("住客删除成功")
         else:
-            messagebox.showerror("Unable to delete guest")
+            messagebox.showerror("无法删除住客")
 
         self.handle_refresh()
 

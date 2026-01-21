@@ -22,6 +22,23 @@ def relative_to_assets(path: str) -> Path:
     return ASSETS_PATH / Path(path)
 
 
+def format_room_no(room_no):
+    text = str(room_no).strip()
+    if text.isdigit():
+        return f"A{text}"
+    return text
+
+
+def normalize_prefixed_id(value, prefix):
+    text = str(value).strip() if value is not None else ""
+    if not text:
+        return None
+    if text.startswith(prefix):
+        suffix = text[len(prefix) :]
+        return text if suffix.isdigit() else None
+    return f"{prefix}{text}" if text.isdigit() else None
+
+
 def view_rooms():
     ViewRooms()
 
@@ -57,7 +74,7 @@ class ViewRooms(Frame):
             116.0,
             33.0,
             anchor="nw",
-            text="View Rooms",
+            text="查看房间",
             fill="#5E95FF",
             font=("Montserrat Bold", 26 * -1),
         )
@@ -66,7 +83,7 @@ class ViewRooms(Frame):
             40.0,
             367.0,
             anchor="nw",
-            text="Avail. Actions:",
+            text="可用操作：",
             fill="#5E95FF",
             font=("Montserrat Bold", 26 * -1),
         )
@@ -75,7 +92,7 @@ class ViewRooms(Frame):
             116.0,
             65.0,
             anchor="nw",
-            text="And Perform Operations",
+            text="并执行操作",
             fill="#808080",
             font=("Montserrat SemiBold", 16 * -1),
         )
@@ -162,11 +179,12 @@ class ViewRooms(Frame):
         # Add treeview here
 
         self.columns = {
-            "Room ID": ["Room ID", 100],
-            "Number": ["Number", 80],
-            "Type": ["Type", 100],
-            "Price": ["Price", 150],
-            "Created At": ["Created At", 250],
+            "Room ID": ["房间ID", 90],
+            "Number": ["房号", 90],
+            "Type": ["类型", 90],
+            "Price": ["价格", 110],
+            "Created At": ["创建时间", 220],
+            "Status": ["状态", 90],
         }
 
         self.treeview = Treeview(
@@ -184,7 +202,7 @@ class ViewRooms(Frame):
         for idx, txt in self.columns.items():
             self.treeview.heading(idx, text=txt[0])
             # Set the column widths
-            self.treeview.column(idx, width=txt[1])
+            self.treeview.column(idx, width=txt[1], stretch=False)
 
         self.treeview.place(x=40.0, y=101.0, width=700.0, height=229.0)
 
@@ -201,7 +219,15 @@ class ViewRooms(Frame):
             # Check if query exists in any value from data
             if query.lower() in str(row).lower():
                 # Insert the data into the treeview
-                self.treeview.insert("", "end", values=row)
+                display_row = (
+                    row[0],
+                    format_room_no(row[1]),
+                    row[2],
+                    row[3],
+                    row[4],
+                    row[5] if len(row) > 5 else "",
+                )
+                self.treeview.insert("", "end", values=display_row)
         self.on_treeview_select()
 
     def on_treeview_select(self, event=None):
@@ -213,7 +239,8 @@ class ViewRooms(Frame):
         # Get the selected item
         item = self.treeview.selection()[0]
         # Get the room id
-        self.parent.selected_rid = self.treeview.item(item, "values")[0]
+        raw_id = self.treeview.item(item, "values")[0]
+        self.parent.selected_rid = normalize_prefixed_id(raw_id, "room_") or raw_id
         # Enable the buttons
         self.delete_btn.config(state="normal")
         self.edit_btn.config(state="normal")
@@ -222,16 +249,24 @@ class ViewRooms(Frame):
         self.treeview.delete(*self.treeview.get_children())
         self.room_data = db_controller.get_rooms()
         for row in self.room_data:
-            self.treeview.insert("", "end", values=row)
+            display_row = (
+                row[0],
+                format_room_no(row[1]),
+                row[2],
+                row[3],
+                row[4],
+                row[5] if len(row) > 5 else "",
+            )
+            self.treeview.insert("", "end", values=display_row)
 
     def handle_navigate_back(self):
         self.parent.navigate("add")
 
     def handle_delete(self):
         if db_controller.delete_room(self.parent.selected_rid):
-            messagebox.showinfo("Successfully Deleted the room")
+            messagebox.showinfo("房间删除成功")
         else:
-            messagebox.showerror("Unable to delete room")
+            messagebox.showerror("无法删除房间")
 
         self.handle_refresh()
 

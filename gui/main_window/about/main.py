@@ -37,7 +37,7 @@ class About(Frame):
             36.0,
             43.0,
             anchor="nw",
-            text="HotinGo was created by",
+            text="qocop 由以下人员创建",
             fill="#5E95FF",
             font=("Montserrat Bold", 26 * -1),
         )
@@ -55,7 +55,7 @@ class About(Frame):
             56.0,
             121.0,
             anchor="nw",
-            text="Tinkerer",
+            text="技术爱好者",
             fill="#777777",
             font=("Montserrat Medium", 15 * -1),
         )
@@ -64,7 +64,7 @@ class About(Frame):
             418.0,
             121.0,
             anchor="nw",
-            text="SW-Fan",
+            text="软件迷",
             fill="#777777",
             font=("Montserrat Medium", 15 * -1),
         )
@@ -123,7 +123,7 @@ class About(Frame):
             197.0,
             352.0,
             anchor="nw",
-            text="© 2021-22 Mohit and Anirudh, All rights reserved",
+            text="© 2021-22 Mohit 与 Anirudh，保留所有权利",
             fill="#5E95FF",
             font=("Montserrat Bold", 16 * -1),
         )
@@ -132,7 +132,7 @@ class About(Frame):
             246.0,
             372.0,
             anchor="nw",
-            text="Open sourced under the MIT license",
+            text="基于 MIT 许可证开源",
             fill="#5E95FF",
             font=("Montserrat Bold", 16 * -1),
         )
@@ -141,7 +141,7 @@ class About(Frame):
             418.0,
             207.0,
             anchor="nw",
-            text="A tech-nerd and a freelance programmer,",
+            text="技术宅与自由程序员，",
             fill="#777777",
             font=("Montserrat Medium", 13 * -1),
         )
@@ -150,7 +150,7 @@ class About(Frame):
             418.0,
             223.0,
             anchor="nw",
-            text="Anirudh likes to kill his time in a world of",
+            text="Anirudh 喜欢在计算机世界里打发时间，",
             fill="#777777",
             font=("Montserrat Medium", 13 * -1),
         )
@@ -159,7 +159,7 @@ class About(Frame):
             418.0,
             239.0,
             anchor="nw",
-            text="computer. He sometimes can be found in",
+            text="有时也会在现实生活中出现，",
             fill="#777777",
             font=("Montserrat Medium", 13 * -1),
         )
@@ -168,7 +168,7 @@ class About(Frame):
             418.0,
             255.0,
             anchor="nw",
-            text="the reality, walking his dog or watching",
+            text="可能在遛狗或看",
             fill="#777777",
             font=("Montserrat Medium", 13 * -1),
         )
@@ -177,7 +177,7 @@ class About(Frame):
             418.0,
             271.0,
             anchor="nw",
-            text="Star Wars.",
+            text="《星球大战》。",
             fill="#777777",
             font=("Montserrat Medium", 13 * -1),
         )
@@ -186,7 +186,7 @@ class About(Frame):
             56.0,
             207.0,
             anchor="nw",
-            text="A coding-addict, entusiastic creator, and a",
+            text="代码成瘾者、热情的创作者，亦是",
             fill="#777777",
             font=("Montserrat Medium", 13 * -1),
         )
@@ -195,7 +195,7 @@ class About(Frame):
             56.0,
             223.0,
             anchor="nw",
-            text="passionate learner, Mohit likes to bring",
+            text="热爱学习的人，Mohit 喜欢把",
             fill="#777777",
             font=("Montserrat Medium", 13 * -1),
         )
@@ -204,7 +204,7 @@ class About(Frame):
             56.0,
             239.0,
             anchor="nw",
-            text="perfection to anything he’s doing. He’s",
+            text="完美带到他所做的一切之中。他也是",
             fill="#777777",
             font=("Montserrat Medium", 13 * -1),
         )
@@ -213,7 +213,7 @@ class About(Frame):
             56.0,
             255.0,
             anchor="nw",
-            text="also a passionate designer and a die-hard",
+            text="一位热爱设计的人，还是个铁杆",
             fill="#777777",
             font=("Montserrat Medium", 13 * -1),
         )
@@ -222,7 +222,7 @@ class About(Frame):
             56.0,
             271.0,
             anchor="nw",
-            text="Avengers fan.",
+            text="《复仇者联盟》粉丝。",
             fill="#777777",
             font=("Montserrat Medium", 13 * -1),
         )

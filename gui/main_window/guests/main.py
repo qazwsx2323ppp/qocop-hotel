@@ -5,7 +5,7 @@ import controller as db_controller
 
 from .add_guests.gui import AddGuests
 from .view_guests.main import ViewGuests
-from .update_guests.main import UpdateGuests
+from .update_guests.main import ConfirmGuestId, UpdateGuests
 
 OUTPUT_PATH = Path(__file__).parent
 ASSETS_PATH = OUTPUT_PATH / Path("./assets")
@@ -32,6 +32,7 @@ class Guests(Frame):
         self.windows = {
             "add": AddGuests(self),
             "view": ViewGuests(self),
+            "confirm": ConfirmGuestId(self),
             "edit": UpdateGuests(self),
         }
 

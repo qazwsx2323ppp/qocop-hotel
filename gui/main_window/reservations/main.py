@@ -6,7 +6,7 @@ import controller as db_controller
 
 from .add_reservations.gui import AddReservations
 from .view_reservations.main import ViewReservations
-from .update_reservation.main import UpdateReservations
+from .update_reservation.main import ConfirmReservationId, UpdateReservations
 
 OUTPUT_PATH = Path(__file__).parent
 ASSETS_PATH = OUTPUT_PATH / Path("./assets")
@@ -33,6 +33,7 @@ class Reservations(Frame):
         self.windows = {
             "add": AddReservations(self),
             "view": ViewReservations(self),
+            "confirm": ConfirmReservationId(self),
             "edit": UpdateReservations(self),
         }
 

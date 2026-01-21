@@ -11,7 +11,6 @@ from tkinter import (
 from controller import *
 from gui.main_window.dashboard.gui import Dashboard
 from gui.main_window.reservations.main import Reservations
-from gui.main_window.about.main import About
 from gui.main_window.rooms.main import Rooms
 from gui.main_window.guests.main import Guests
 from .. import login
@@ -34,7 +33,8 @@ class MainWindow(Toplevel):
     def __init__(self, *args, **kwargs):
         Toplevel.__init__(self, *args, **kwargs)
 
-        self.title("HotinGo - The state of art HMS")
+        self.title("qocop - 先进酒店管理系统")
+        self.protocol("WM_DELETE_WINDOW", self._close_app)
 
         self.geometry("1012x506")
         self.configure(bg="#5E95FF")
@@ -63,10 +63,10 @@ class MainWindow(Toplevel):
 
         self.sidebar_indicator.place(x=0, y=133, height=47, width=7)
 
-        button_image_1 = PhotoImage(file=relative_to_assets("button_1.png"))
+        self.button_image_1 = PhotoImage(file=relative_to_assets("button_1.png"))
         self.dashboard_btn = Button(
             self.canvas,
-            image=button_image_1,
+            image=self.button_image_1,
             borderwidth=0,
             highlightthickness=0,
             command=lambda: self.handle_btn_press(self.dashboard_btn, "dash"),
@@ -75,10 +75,10 @@ class MainWindow(Toplevel):
         )
         self.dashboard_btn.place(x=7.0, y=133.0, width=208.0, height=47.0)
 
-        button_image_2 = PhotoImage(file=relative_to_assets("button_2.png"))
+        self.button_image_2 = PhotoImage(file=relative_to_assets("button_2.png"))
         self.rooms_btn = Button(
             self.canvas,
-            image=button_image_2,
+            image=self.button_image_2,
             borderwidth=0,
             highlightthickness=0,
             command=lambda: self.handle_btn_press(self.rooms_btn, "roo"),
@@ -87,10 +87,10 @@ class MainWindow(Toplevel):
         )
         self.rooms_btn.place(x=7.0, y=183.0, width=208.0, height=47.0)
 
-        button_image_3 = PhotoImage(file=relative_to_assets("button_3.png"))
+        self.button_image_3 = PhotoImage(file=relative_to_assets("button_3.png"))
         self.guests_btn = Button(
             self.canvas,
-            image=button_image_3,
+            image=self.button_image_3,
             borderwidth=0,
             highlightthickness=0,
             command=lambda: self.handle_btn_press(self.guests_btn, "gue"),
@@ -99,22 +99,10 @@ class MainWindow(Toplevel):
         )
         self.guests_btn.place(x=7.0, y=283.0, width=208.0, height=47.0)
 
-        button_image_4 = PhotoImage(file=relative_to_assets("button_4.png"))
-        self.about_btn = Button(
-            self.canvas,
-            image=button_image_4,
-            borderwidth=0,
-            highlightthickness=0,
-            command=lambda: self.handle_btn_press(self.about_btn, "abt"),
-            cursor='hand2', activebackground="#5E95FF",
-            relief="flat",
-        )
-        self.about_btn.place(x=7.0, y=333.0, width=208.0, height=47.0)
-
-        button_image_5 = PhotoImage(file=relative_to_assets("button_5.png"))
+        self.button_image_5 = PhotoImage(file=relative_to_assets("button_5.png"))
         self.logout_btn = Button(
             self.canvas,
-            image=button_image_5,
+            image=self.button_image_5,
             borderwidth=0,
             highlightthickness=0,
             command=self.logout,
@@ -122,10 +110,10 @@ class MainWindow(Toplevel):
         )
         self.logout_btn.place(x=0.0, y=441.0, width=215.0, height=47.0)
 
-        button_image_6 = PhotoImage(file=relative_to_assets("button_6.png"))
+        self.button_image_6 = PhotoImage(file=relative_to_assets("button_6.png"))
         self.reservations_btn = Button(
             self.canvas,
-            image=button_image_6,
+            image=self.button_image_6,
             borderwidth=0,
             highlightthickness=0,
             command=lambda: self.handle_btn_press(self.reservations_btn, "res"),
@@ -138,7 +126,7 @@ class MainWindow(Toplevel):
             255.0,
             33.0,
             anchor="nw",
-            text="Hello",
+            text="控制台",
             fill="#5E95FF",
             font=("Montserrat Bold", 26 * -1),
         )
@@ -147,7 +135,7 @@ class MainWindow(Toplevel):
             28.0,
             21.0,
             anchor="nw",
-            text="HotinGo",
+            text="qocop",
             fill="#FFFFFF",
             font=("Montserrat Bold", 36 * -1),
         )
@@ -156,7 +144,7 @@ class MainWindow(Toplevel):
             844.0,
             43.0,
             anchor="nw",
-            text="Administrator",
+            text="管理员",
             fill="#808080",
             font=("Montserrat Bold", 16 * -1),
         )
@@ -165,7 +153,7 @@ class MainWindow(Toplevel):
             341.0,
             213.0,
             anchor="nw",
-            text="(The screens below",
+            text="（下方界面",
             fill="#5E95FF",
             font=("Montserrat Bold", 48 * -1),
         )
@@ -174,7 +162,7 @@ class MainWindow(Toplevel):
             420.0,
             272.0,
             anchor="nw",
-            text="will come here)",
+            text="将显示在此）",
             fill="#5E95FF",
             font=("Montserrat Bold", 48 * -1),
         )
@@ -184,7 +172,6 @@ class MainWindow(Toplevel):
             "dash": Dashboard(self),
             "roo": Rooms(self),
             "gue": Guests(self),
-            "abt": About(self),
             "res": Reservations(self),
         }
 
@@ -195,15 +182,20 @@ class MainWindow(Toplevel):
 
         self.current_window.tkraise()
         self.resizable(False, False)
-        self.mainloop()
+
+    def _close_app(self):
+        # Ensure the whole app quits when closing the main window.
+        try:
+            if self.master:
+                self.master.destroy()
+        finally:
+            self.destroy()
 
     def place_sidebar_indicator(self):
         pass
 
     def logout(self):
-        confirm = messagebox.askyesno(
-            "Confirm log-out", "Do you really want to log out?"
-        )
+        confirm = messagebox.askyesno("确认退出登录", "确定要退出登录吗？")
         if confirm == True:
             user = None
             self.destroy()
@@ -225,7 +217,13 @@ class MainWindow(Toplevel):
 
         # Handle label change
         current_name = self.windows.get(name)._name.split("!")[-1].capitalize()
-        self.canvas.itemconfigure(self.heading, text=current_name)
+        name_map = {
+            "Dashboard": "控制台",
+            "Rooms": "房间",
+            "Guests": "住客",
+            "Reservations": "预订",
+        }
+        self.canvas.itemconfigure(self.heading, text=name_map.get(current_name, current_name))
 
     def handle_dashboard_refresh(self):
         # Recreate the dash window
